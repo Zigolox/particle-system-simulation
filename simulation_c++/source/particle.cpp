@@ -11,6 +11,6 @@ void Particle::update(double dt){
   acc[2] = 0;
 
   //Update energy
-  kinetic_energy = 0.5*mass* norm(vel);
+  kinetic_energy = 0.5*mass*vel.dot(vel);
 
 }

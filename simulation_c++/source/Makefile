@@ -1,18 +1,18 @@
 IDIR=../include/
 ODIR=../obj/
 BIN= ../bin/
-LIBS=-lm -lSDL2main -lSDL2
+LIBS=-I/usr/local/include/eigen3/
 
 CC=g++
-CFLAGS=-I$(IDIR) -std=c++11
+CFLAGS=-I$(IDIR) $(LIBS) -std=c++11
 
-_DEPS = particle.h
+_DEPS = particle.h particle_system.h
 DEPS = $(patsubst %,$(IDIR)%,$(_DEPS))
 
-_OBJ= particle.o  main_program.o
+_OBJ= particle.o particle_system.o program.o
 OBJ = $(patsubst %,$(ODIR)%,$(_OBJ))
 
-PROG=main_program
+PROG=program
 LIST=$(addprefix $(BIN), $(PROG))
 
 all: $(LIST)
@@ -27,4 +27,3 @@ $(LIST): $(OBJ)
 
 clean:
 	rm -f $(ODIR)/*.o
-

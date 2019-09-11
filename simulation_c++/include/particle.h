@@ -3,25 +3,25 @@
 #include <iostream>
 #include <cmath>
 #include <stdlib.h>
-#include <armadillo>
+#include <Eigen/Dense>
 #define PI 3.14159265358979323846
 using namespace std;
-using namespace arma;
+using namespace Eigen;
 
 class Particle {
 private:
-  arma::vec pos; //Position of particle
-  arma::vec vel; //Velocity of particle
-  arma::vec2 rot; //Orientation of particle, will probably not be used
+  Vector3d pos; //Position of particle
+  Vector3d vel; //Velocity of particle
+  Vector2d rot; //Orientation of particle, will probably not be used
 
-  arma::vec acc_prev;  //Previous acceleration
-  arma::vec acc;       //Current acceleration
+  Vector3d acc_prev;  //Previous acceleration
+  Vector3d acc;       //Current acceleration
 
   double mass;    //Mass of particle
   double kinetic_energy;
   double radius;
 public:
-  Particle(arma::vec box_dimensions, double start_velocity){
+  Particle(Vector3d box_dimensions, double start_velocity){
     /*Initializer for particle class. Takes average velocity and
     box dimensions, i.e. interval for the x,y,z, coordinates as input*/
 
@@ -51,7 +51,7 @@ public:
     acc_prev = {0,0,0};
   }
 
-  Particle(arma::vec box_dimensions, double start_velocity, double r){
+  Particle(Vector3d box_dimensions, double start_velocity, double r){
     /*Initializer for particle class. Takes average velocity and
     box dimensions, i.e. interval for the x,y,z, coordinates as input*/
 
@@ -81,7 +81,7 @@ public:
     acc_prev = {0,0,0};
   }
 
-  Particle(arma::vec box_dimensions, double start_velocity,double r, double m){
+  Particle(Vector3d box_dimensions, double start_velocity,double r, double m){
     /*Initializer for particle class. Takes average velocity and
     box dimensions, i.e. interval for the x,y,z, coordinates as input.
     This initalizer also takes the mass of the particle as input.*/
@@ -112,11 +112,11 @@ public:
     acc_prev = {0,0,0};
   }
 
-  void addForce(arma::vec F){acc = acc + F*(1/mass);}
+  void addForce(Vector3d F){acc = acc + F*(1/mass);}
 
-  arma::vec get_position(){return pos;}
+  Vector3d get_position(){return pos;}
 
-  arma::vec get_velocity(){return vel;}
+  Vector3d get_velocity(){return vel;}
 
   double get_mass(){return mass;}
 
@@ -133,7 +133,7 @@ public:
     std::cout << "Mass: " << mass << '\n';
   }
 
-  void collide(arma::vec dr, arma::vec dv){
+  void collide(Vector3d dr, Vector3d dv){
     /*Function to call if two particles collide*/
     pos = pos + dr;
     vel = vel + dv;
