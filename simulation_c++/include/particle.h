@@ -38,7 +38,7 @@ public:
     phi = (double) rand()/(double) RAND_MAX * PI;
     vel = {start_velocity*sin(theta)*cos(phi),
       start_velocity*cos(theta)*cos(phi),
-      start_velocity*cos(phi)};
+      start_velocity*sin(phi)};
 
     //Set the radius of the particle to 0
     radius = 0;
@@ -68,7 +68,7 @@ public:
     phi = (double) rand()/(double) RAND_MAX * PI;
     vel = {start_velocity*sin(theta)*cos(phi),
       start_velocity*cos(theta)*cos(phi),
-      start_velocity*cos(phi)};
+      start_velocity*sin(phi)};
 
     //Set the radius of the particle
     radius = r;
@@ -99,7 +99,7 @@ public:
     phi = (double) rand()/(double) RAND_MAX * PI;
     vel = {start_velocity*sin(theta)*cos(phi),
       start_velocity*cos(theta)*cos(phi),
-      start_velocity*cos(phi)};
+      start_velocity*sin(phi)};
 
     //Set the radius of the particle
     radius = r;
@@ -112,7 +112,7 @@ public:
     acc_prev = {0,0,0};
   }
 
-  void add_force(Vector3d F){acc = acc + F*(1/mass);}
+  void add_force(Vector3d F){acc+= F*(1/mass);}
 
   Vector3d get_position(){return pos;}
 

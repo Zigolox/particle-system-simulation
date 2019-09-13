@@ -7,13 +7,14 @@ System::System(int amount_of_particles,
   box dimensions, and start velocity for the particles.*/
   box = box_dimensions;
 
+  //Save the amount of particles
+  N = amount_of_particles;
+
   //Create all particles
   for (int i = 0; i < N; i++) {
       particles.push_back(new Particle(box_dimensions, start_velocity));
   }
 
-  //Save the amount of particles
-  N = amount_of_particles;
 
 
 }
@@ -26,13 +27,13 @@ System::System(int amount_of_particles,
   box dimensions, and start velocity for the particles.*/
   box = box_dimensions;
 
+  //Save the amount of particles
+  N = amount_of_particles;
+
   //Create all particles
   for (int i = 0; i < N; i++) {
       particles.push_back(new Particle(box_dimensions, start_velocity));
   }
-
-  //Save the amount of particles
-  N = amount_of_particles;
 
   force_function = force;
 
@@ -48,17 +49,83 @@ System::System(int amount_of_particles,
   box dimensions, and start velocity for the particles.*/
   box = box_dimensions;
 
+  //Save the amount of particles
+  N = amount_of_particles;
+
   //Create all particles
   for (int i = 0; i < N; i++) {
       particles.push_back(new Particle(box_dimensions, start_velocity));
   }
 
-  //Save the amount of particles
-  N = amount_of_particles;
-
   force_function = force;
   potential_function = potential;
 
+}
+
+System::System(int amount_of_particles,
+  Vector3d box_dimensions,
+  double r,
+  double start_velocity) {
+  /*Initalizer for particle system class. Set amount of particles N,
+  box dimensions, and start velocity for the particles.*/
+  box = box_dimensions;
+
+  //Save the amount of particles
+  N = amount_of_particles;
+
+  //Create all particles
+  for (int i = 0; i < N; i++) {
+      particles.push_back(new Particle(box_dimensions, start_velocity, r));
+  }
+
+
+}
+
+System::System(int amount_of_particles,
+  Vector3d box_dimensions,
+  double start_velocity,
+  double r,
+  Vector3d (*force)(Particle *p1, Particle *p2)) {
+  /*Initalizer for particle system class. Set amount of particles N,
+  box dimensions, and start velocity for the particles.*/
+  box = box_dimensions;
+
+  //Save the amount of particles
+  N = amount_of_particles;
+
+  //Create all particles
+  for (int i = 0; i < N; i++) {
+      particles.push_back(new Particle(box_dimensions, start_velocity, r));
+  }
+
+
+
+  force_function = force;
+
+
+}
+
+System::System(int amount_of_particles,
+  Vector3d box_dimensions,
+  double start_velocity,
+  double r,
+  Vector3d (*force)(Particle *p1, Particle *p2),
+  double (*potential)(Particle *p1, Particle *p2)) {
+  /*Initalizer for particle system class. Set amount of particles N,
+  box dimensions, and start velocity for the particles.*/
+  box = box_dimensions;
+
+  //Save the amount of particles
+  N = amount_of_particles;
+
+  //Create all particles
+  for (int i = 0; i < N; i++) {
+      particles.push_back(new Particle(box_dimensions, start_velocity, r));
+  }
+
+
+  force_function = force;
+  potential_function = potential;
 
 }
 
@@ -134,15 +201,15 @@ void System::collision(int i, int j) {
 
   pos_rel = pos2 - pos1;
 
-  dvel1 = vel1_rel.dot(pos_rel)/pos_rel.dot(pos_rel)*pos_rel;
+  dvel1 = -2*vel1_rel.dot(pos_rel)/pos_rel.dot(pos_rel)*pos_rel;
   dvel2 = -dvel1*m2/m1;
 
-  dis = sqrt(pos_rel.dot(pos_rel));
+  dis = pos_rel.norm();
   dis0 = r1 + r2;
 
   dpos1 = -m2*(dis0-dis)/((m1+m2)*dis)*pos_rel;
   dpos2 =-m1/m2*dpos1;
-
+  
   p1 -> collide(dpos1,dvel1);
   p2 -> collide(dpos2, dvel2);
 
@@ -160,8 +227,8 @@ void System::update_system() {
   }
 
   //Check particle collisions
-  for(int i = 0; i < N; i++) {
-    for(int j = i; j < N; j++) {
+  for(int i = 0; i < N-1; i++) {
+    for(int j = i + 1; j < N; j++) {
       if(collision_check(i,j)) {
         collision(i,j);
       }
@@ -169,20 +236,21 @@ void System::update_system() {
   }
   //Add particle forces
   Vector3d F;
-  for(int i = 0; i < N; i++) {
-    for(int j = i; j < N; j++) {
+  for(int i = 0; i < N - 1; i++) {
+    for(int j = i + 1; j < N; j++) {
       F = (*force_function)(particles[i], particles[j]);
       particles[i] -> add_force(F);
       particles[j] -> add_force(-F);
     }
   }
-  
+
   t += dt;
 }
 
 void System::calc_kinetic() {
   kinetic_energy = 0;
   for(int i = 0; i < N; i++) {
+    //std::cout << "Energy " << i <<": "<< particles[i] -> get_energy() << '\n';
     kinetic_energy += particles[i] -> get_energy();
   }
 }
@@ -203,8 +271,8 @@ vector<double> System::get_kinetic_distribution() {
 
 void System::calc_potential() {
   potential_energy = 0;
-  for(int i = 0; i < N; i++) {
-    for(int j = i; j < N; j++) {
+  for(int i = 0; i < N - 1; i++) {
+    for(int j = i +1; j < N; j++) {
       potential_energy += (*potential_function)(particles[i], particles[j]);
     }
   }
@@ -215,8 +283,8 @@ vector<double> System::get_potential_distribution() {
 
   vector<double> distribution;
 
-  for(int i = 0; i < N; i++) {
-    for(int j = i; j < N; j++) {
+  for(int i = 0; i < N - 1; i++) {
+    for(int j = i + 1; j < N; j++) {
       distribution.push_back((*potential_function)(particles[i], particles[j]));
     }
   }

@@ -23,7 +23,7 @@ private:
   double potential_energy;  //Potential energy of system
   double kinetic_energy;  //Kinetic energy of system
 
-  double dt = 0.0001; //Timestep
+  double dt = 0.01; //Timestep
   double t = 0; //Time passed
 public:
   System(int amount_of_particles,
@@ -40,6 +40,24 @@ public:
     double start_velocity,
     Vector3d (*force)(Particle *p1, Particle *p2),
     double (*potential)(Particle *p1, Particle *p2));
+
+    System(int amount_of_particles,
+      Vector3d box_dimensions,
+      double r,
+      double start_velocity);
+
+    System(int amount_of_particles,
+      Vector3d box_dimensions,
+      double start_velocity,
+      double r,
+      Vector3d (*force)(Particle *p1, Particle *p2));
+
+    System(int amount_of_particles,
+      Vector3d box_dimensions,
+      double start_velocity,
+      double r,
+      Vector3d (*force)(Particle *p1, Particle *p2),
+      double (*potential)(Particle *p1, Particle *p2));
 
   void wall_collision(int i);
 
