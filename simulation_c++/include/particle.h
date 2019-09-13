@@ -112,7 +112,7 @@ public:
     acc_prev = {0,0,0};
   }
 
-  void addForce(Vector3d F){acc = acc + F*(1/mass);}
+  void add_force(Vector3d F){acc = acc + F*(1/mass);}
 
   Vector3d get_position(){return pos;}
 
@@ -137,10 +137,6 @@ public:
     /*Function to call if two particles collide*/
     pos = pos + dr;
     vel = vel + dv;
-
-
-
-
 
   }
 
