@@ -2,6 +2,7 @@
 #define PARTICLESYSTEM
 #include <stdlib.h>
 #include <vector>
+#include <string>
 #include <iostream>
 #include <cmath>
 #include <Eigen/Dense>
@@ -17,14 +18,23 @@ private:
 
   Vector3d box; //Box dimensions
 
-  Vector3d (*force_function)(Particle *p1, Particle *p2) = [](Particle *p1, Particle *p2) {return  Vector3d(0,0,0);};
-  double (*potential_function)(Particle *p1, Particle *p2) = [](Particle *p1, Particle *p2) {return  0.0;};
+  Vector3d outer_force = {0,0,0};
+
+  Vector3d (*force_function)(Particle *p1, Particle *p2) =
+  [](Particle *p1, Particle *p2) {return  Vector3d(0,0,0);};
+
+  double (*potential_function)(Particle *p1, Particle *p2) =
+  [](Particle *p1, Particle *p2) {return  0.0;};
 
   double potential_energy;  //Potential energy of system
   double kinetic_energy;  //Kinetic energy of system
 
-  double dt = 0.01; //Timestep
+  double dt = 0.005; //Timestep
   double t = 0; //Time passed
+
+  bool optimize = 1;
+
+  vector<System *> subsystems;
 public:
   System(int amount_of_particles,
     Vector3d box_dimensions,
@@ -59,6 +69,17 @@ public:
       Vector3d (*force)(Particle *p1, Particle *p2),
       double (*potential)(Particle *p1, Particle *p2));
 
+  void initialize_subsystems(int N);
+
+  void add_particle(Particle *p){
+    particles.push_back(p);
+  }
+  /*
+  void remove_particle(int i){
+    particles.pop(i);
+  }
+  */
+
   void wall_collision(int i);
 
   bool collision_check(int i, int j);
@@ -69,6 +90,7 @@ public:
 
   double get_kinetic() {return kinetic_energy;}
   double get_potential() {return potential_energy;}
+  
   double get_time() {return t;}
 
   void calc_kinetic();

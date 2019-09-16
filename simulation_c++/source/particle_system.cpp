@@ -195,7 +195,7 @@ void System::collision(int i, int j) {
   m1 = p1 -> get_mass();
   m2 = p2 -> get_mass();
 
-  vel_COM = (m1*vel1+ m2*vel2)/(m1+m2);
+  vel_COM = (m1*vel1 + m2*vel2)/(m1 + m2);
   vel1_rel = vel1 - vel_COM;
   vel2_rel = vel2 - vel_COM;
 
@@ -207,37 +207,33 @@ void System::collision(int i, int j) {
   dis = pos_rel.norm();
   dis0 = r1 + r2;
 
-  dpos1 = -m2*(dis0-dis)/((m1+m2)*dis)*pos_rel;
+  dpos1 = -m2*(dis0-dis)/((m1 + m2)*dis)*pos_rel;
   dpos2 =-m1/m2*dpos1;
-  
+
   p1 -> collide(dpos1,dvel1);
   p2 -> collide(dpos2, dvel2);
 
 }
 
 void System::update_system() {
-  //Update all particles
-  for(int i = 0; i < N; i++) {
-    particles[i] -> update(dt);
-  }
 
-  //Check wall collisions
   for(int i = 0; i < N; i++) {
+    //Update all particles
+    particles[i] -> update(dt);
+
+    //Check wall collisions
     wall_collision(i);
   }
 
-  //Check particle collisions
+  Vector3d F;
   for(int i = 0; i < N-1; i++) {
     for(int j = i + 1; j < N; j++) {
+      //Check particle collisions
       if(collision_check(i,j)) {
         collision(i,j);
       }
-    }
-  }
-  //Add particle forces
-  Vector3d F;
-  for(int i = 0; i < N - 1; i++) {
-    for(int j = i + 1; j < N; j++) {
+
+      //Add particle forces
       F = (*force_function)(particles[i], particles[j]);
       particles[i] -> add_force(F);
       particles[j] -> add_force(-F);
