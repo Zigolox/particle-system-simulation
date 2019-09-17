@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 #include <cmath>
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 #include "particle.h"
 
 using namespace std;
@@ -90,7 +90,7 @@ public:
 
   double get_kinetic() {return kinetic_energy;}
   double get_potential() {return potential_energy;}
-  
+
   double get_time() {return t;}
 
   void calc_kinetic();

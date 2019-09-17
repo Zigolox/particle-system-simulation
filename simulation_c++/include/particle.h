@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <stdlib.h>
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 #define PI 3.14159265358979323846
 using namespace std;
 using namespace Eigen;
