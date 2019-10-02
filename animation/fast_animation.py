@@ -11,9 +11,9 @@ save_video = False
 fps = 60                    # Frames per second
 #color = 'b'                 # Color of particles
 dpi = 300                   # Dots per inch (i.e. resolution)
-boxsize = 4      # Length of each side of the box
-particlesize = 1            # Size of particles (not the same coordinates as the box)
-filename = "../Optimized_program/text_data_files/position_data_electric_new.txt"    # Insert file name here (must be txt format)
+boxsize = 100      # Length of each side of the box
+particlesize = 40            # Size of particles (not the same coordinates as the box)
+filename = "../Optimized_program/source/position_data_electric_new.txt"    # Insert file name here (must be txt format)
 videoname = "test_animation"    # Name of the video. Without file format
 if save_video:
     multiprocessing = True  # Enable this for parallell processing
@@ -42,7 +42,7 @@ def data_extract(filename):
 
     simulation = []
     with open(filename) as txtdata:
-        for frame in txtdata.readlines()[1:]:
+        for frame in txtdata.readlines()[1::1000]:
             frame_arr = []
             for particle in frame.split('\t')[:-1]:
                 frame_arr.append(np.array([coord for coord in particle.split(' ')][:], dtype=float))
@@ -97,7 +97,7 @@ def animate(data, index):
     else:
         video = []
         for frame in data:
-            plot = ax.scatter(frame[:, 0], frame[:, 1], frame[:, 2], s=particlesize, c=color, cmap="jet", animated=True)
+            plot = ax.scatter(frame[:, 0], frame[:, 1], frame[:, 2], s=particlesize, c=['k', 'r'], animated=True)
             video.append([plot])
 
         animation.ArtistAnimation(fig, video, interval=1000/fps, blit=True, repeat_delay=1000)
