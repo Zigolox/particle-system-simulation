@@ -7,13 +7,13 @@ from multiprocessing import Pool
 import subprocess
 
 
-save_video = True
+save_video = False
 fps = 60                    # Frames per second
-color = 'b'                 # Color of particles
+#color = 'b'                 # Color of particles
 dpi = 300                   # Dots per inch (i.e. resolution)
-boxsize = [100, 100, 100]      # Length of each side of the box
+boxsize = 4      # Length of each side of the box
 particlesize = 1            # Size of particles (not the same coordinates as the box)
-filename = "test123.txt"    # Insert file name here (must be txt format)
+filename = "../Optimized_program/text_data_files/position_data_electric_new.txt"    # Insert file name here (must be txt format)
 videoname = "test_animation"    # Name of the video. Without file format
 if save_video:
     multiprocessing = True  # Enable this for parallell processing
@@ -42,10 +42,10 @@ def data_extract(filename):
 
     simulation = []
     with open(filename) as txtdata:
-        for frame in txtdata.readlines():
+        for frame in txtdata.readlines()[1:]:
             frame_arr = []
             for particle in frame.split('\t')[:-1]:
-                frame_arr.append(np.array([coord for coord in particle.split(' ')][:-1], dtype=float))
+                frame_arr.append(np.array([coord for coord in particle.split(' ')][:], dtype=float))
             simulation.append(frame_arr)
 
     simulation = np.array(simulation)
@@ -79,10 +79,12 @@ def animate(data, index):
     fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
     fig.set_size_inches((5, 5), forward=True)
 
+    color = np.arange(data.shape[1])
+
     if save_video:
         writer = animation.FFMpegWriter(fps=fps, bitrate=fps*100, extra_args=['-vcodec', 'libx264', '-preset', 'ultrafast'])
         tbefore = time.time()
-        plot = ax.plot([], [], [], '.', ms=particlesize, c=color)[0]
+        plot = ax.plot([], [], [], '.', ms=particlesize, c=color, cmap="jet")[0]
 
         with writer.saving(fig, f"../videos/{index if index >= 0 else ''}{videoname}.mp4", dpi=dpi):
             for frame in data:
@@ -95,9 +97,9 @@ def animate(data, index):
     else:
         video = []
         for frame in data:
-            plot = ax.scatter(frame[:, 0], frame[:, 1], frame[:, 2], s=particlesize, c=color, animated=True)
+            plot = ax.scatter(frame[:, 0], frame[:, 1], frame[:, 2], s=particlesize, c=color, cmap="jet", animated=True)
             video.append([plot])
-        # TODO: fix frame rate
+
         animation.ArtistAnimation(fig, video, interval=1000/fps, blit=True, repeat_delay=1000)
         plt.show()
 
