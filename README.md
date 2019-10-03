@@ -8,7 +8,8 @@ Use ```fast_animation.py``` to extract the data from a txt file and save the vid
 - numpy
 - matplotlib
 
-Install these packages using ```pip install numpy``` and ```pip install matplotlib```. If you are using Anaconda, these packages should come pre-installed.
+Install these packages using ```pip install numpy``` and ```pip install matplotlib```. If you are using Anaconda, these packages should come pre-installed. Additionally, you also need ffmpeg which can be installed from the terminal using e.g. ```sudo apt-get install ffmpeg``` (Ubuntu) or ```sudo pacman ffmpeg``` (Arch linux) etc.
+
 
 ### Customizing the output
 All variables that can be changed by the user without breaking the program are located at the top of the ```fast_animation.py``` file. See detailed description about the different variables in the file itself.
