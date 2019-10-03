@@ -33,18 +33,24 @@ Vector3d general_force(Vector3d pos1, Vector3d pos2, float n, float k) {
   Vector3d F;
 
   r_vec = pos2 - pos1;
-  r = sqrt(r_vec.dot(r_vec));
-  F = k*r_vec*(pow(r,n));
+  r = r_vec.norm();
+  F = k*(pow(r,n-1))*r_vec;
   return F;
 }
+
 double general_potential(Vector3d pos1, Vector3d pos2, float n, float k) {
   Vector3d r_vec;
   double r;
   double U;
 
   r_vec = pos2 - pos1;
-  r = sqrt(r_vec.dot(r_vec));
-  U = -k*pow(r,n-1);
+  r = r_vec.norm();
+  if(n != -1){
+    U = k*(pow(r,n+1))/(n+1);
+  }
+  else {
+    U = k * log(r);
+  }
   return U;
 }
 
@@ -101,8 +107,8 @@ int main(int argc, char const *argv[]) {
   std::cout << "#######Input Data#######" << '\n';
   std::cout << "N: " << N << '\n';
   std::cout << "L: " << L << '\n';
-  std::cout << "exponent: " << exponent << '\n';
-  std::cout << "constant: " << constant << '\n';
+  std::cout << "Exponent: " << exponent << '\n';
+  std::cout << "Constant: " << constant << '\n';
   std::cout << "Velocity: " << vel << '\n';
   std::cout << "Radius: " << r << '\n';
   std::cout << "Iterations: " << Iterations << '\n';
