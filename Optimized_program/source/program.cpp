@@ -18,7 +18,7 @@ Unit of mass: u
 */
 
 int N = 1000;
-int L = 4;
+double L = 4;
 float exponent = -2;
 float constant = 1;
 double vel = 1;
@@ -26,6 +26,7 @@ float r = 0.01;
 int Iterations = 10000;
 bool display_progress = 0;
 double dt = 0.000001;
+double dampening = 0.0;
 
 Vector3d general_force(Vector3d pos1, Vector3d pos2, float n, float k) {
   Vector3d r_vec;
@@ -72,7 +73,7 @@ int main(int argc, char const *argv[]) {
       i += 1;
     }
     else if(strcmp(argv[i],"-L") == 0) {
-      L = atoi(argv[i+1]);
+      L = atof(argv[i+1]);
       i += 1;
     }
     else if(strcmp(argv[i],"-I") == 0) {
@@ -102,6 +103,10 @@ int main(int argc, char const *argv[]) {
     else if(strcmp(argv[i],"-p") == 0) {
       display_progress = 1;
     }
+    else if(strcmp(argv[i],"-d") == 0) {
+      dampening = atof(argv[i+1]);
+      i += 1;
+    }
   }
 
   std::cout << "#######Input Data#######" << '\n';
@@ -124,6 +129,7 @@ int main(int argc, char const *argv[]) {
     &force,
     &potential);
   particle_system.set_time_step(dt);
+  particle_system.set_dampening(dampening);
 
   vector<double> EK;
   vector<double> EP;
@@ -131,6 +137,8 @@ int main(int argc, char const *argv[]) {
   vector<double> Energy_distribution_EK, Energy_distribution_EP;
   vector<vector<Vector3d>> particle_positions;
 
+
+  particle_system.initialize_energy();
 
   for(int i = 0; i < Iterations; i++) {
     particle_system.update_system();
@@ -151,8 +159,8 @@ int main(int argc, char const *argv[]) {
     }
 
   }
-  ofstream energy_file ("../source/energy_data_electric_new.txt");
-  ofstream position_file ("../source/position_data_electric_new.txt");
+  ofstream energy_file ("../source/energy_data.txt");
+  ofstream position_file ("../source/position_data.txt");
 
   Energy_distribution_EK = particle_system.get_kinetic_distribution();
   Energy_distribution_EP = particle_system.get_potential_distribution();
