@@ -128,8 +128,6 @@ int main(int argc, char const *argv[]) {
     r,
     &force,
     &potential);
-  particle_system.set_time_step(dt);
-  particle_system.set_dampening(dampening);
 
   vector<double> EK;
   vector<double> EP;
@@ -138,7 +136,6 @@ int main(int argc, char const *argv[]) {
   vector<vector<Vector3d>> particle_positions;
 
 
-  particle_system.initialize_energy();
 
   for(int i = 0; i < Iterations; i++) {
     particle_system.update_system();
@@ -159,8 +156,8 @@ int main(int argc, char const *argv[]) {
     }
 
   }
-  ofstream energy_file ("../source/energy_data.txt");
-  ofstream position_file ("../source/position_data.txt");
+  ofstream energy_file ("../e3example2/energy_data.txt");
+  ofstream position_file ("../e3example2/position_data.txt");
 
   Energy_distribution_EK = particle_system.get_kinetic_distribution();
   Energy_distribution_EP = particle_system.get_potential_distribution();
