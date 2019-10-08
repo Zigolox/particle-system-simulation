@@ -7,12 +7,13 @@ from multiprocessing import Pool
 import subprocess
 
 
-save_video = False
+save_video = True
+step = 10
 fps = 60                    # Frames per second
 #color = 'b'                 # Color of particles
 dpi = 300                   # Dots per inch (i.e. resolution)
 particlesize = 40            # Size of particles (not the same coordinates as the box)
-filename = "../Optimized_program/source/position_data_electric_new.txt"    # Insert file name here (must be txt format)
+filename = "../Optimized_program/source/position_data.txt"    # Insert file name here (must be txt format)
 videoname = "test_animation"    # Name of the video. Without file format
 if save_video:
     multiprocessing = True  # Enable this for parallell processing
@@ -35,13 +36,13 @@ def test_datagen(nparticles, nframes, filename):
             txt.write("\n")
 
 
-def data_extract(filename):
+def data_extract(filename, step=0):
     """Function that extracts data from the file that stores data.
     Returns: numpy array with location of all particles for each frame"""
 
     simulation = []
     with open(filename) as txtdata:
-        for frame in txtdata.readlines()[1::100]:
+        for frame in txtdata.readlines()[1::step]:
             frame_arr = []
             for particle in frame.split('\t')[:-1]:
                 frame_arr.append(np.array([coord for coord in particle.split(' ')], dtype=float))
@@ -86,6 +87,7 @@ def animate(data, index):
     color = np.arange(data.shape[1])
 
     if save_video:
+        # TOOO: This cannot have different color for different particles yet.
         writer = animation.FFMpegWriter(fps=fps, bitrate=fps*100, extra_args=['-vcodec', 'libx264', '-preset', 'ultrafast'])
         tbefore = time.time()
         plot = ax.plot([], [], [], '.', ms=particlesize, c=color, cmap="jet")[0]
@@ -110,7 +112,7 @@ def animate(data, index):
 
 if __name__ == "__main__":
     print("extracting data...")
-    data = data_extract(filename)
+    data = data_extract(filename, step)
 
     print("animating...")
     if multiprocessing and save_video:
