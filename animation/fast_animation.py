@@ -5,20 +5,29 @@ import matplotlib.animation as animation
 import time
 from multiprocessing import Pool
 import subprocess
+import sys
 
+flags = {'-v':'save_video', '-s': 'step', '-f': 'fps', '-q': 'dpi', '-r':'particlesize', '-d': 'filename', '-o': 'videoname', '-c': 'cpus'}
 
-save_video = True
-step = 10
-fps = 60                    # Frames per second
-#color = 'b'                 # Color of particles
-dpi = 300                   # Dots per inch (i.e. resolution)
-particlesize = 40            # Size of particles (not the same coordinates as the box)
-filename = "../Optimized_program/source/position_data.txt"    # Insert file name here (must be txt format)
-videoname = "test_animation"    # Name of the video. Without file format
-if save_video:
-    multiprocessing = True  # Enable this for parallell processing
-    if multiprocessing:
-        cpus = 4            # number of cores in computer
+args = dict(save_video = False,
+            step = 1000,
+            fps = 60,                    # Frames per second
+            dpi = 300,                   # Dots per inch (i.e. resolution)
+            particlesize = 40,            # Size of particles (not the same coordinates as the box)
+            filename = "../text_data_files/position_data2.5.txt",
+            videoname = 'test_animation',
+            cpus=4)
+
+# TODO: bad code
+for i, flag in enumerate(sys.argv[1:]):
+    if flag[0] == '-':
+        try:
+            args[flags[flag]] = int(sys.argv[i+2])
+        except ValueError:
+            args[flags[flag]] = sys.argv[i+2]
+
+if args['save_video']:
+    multiprocessing = True  # TODO: This code is bad.
 else:
     multiprocessing = False
 
@@ -86,13 +95,13 @@ def animate(data, index):
 
     color = np.arange(data.shape[1])
 
-    if save_video:
+    if args['save_video']:
         # TOOO: This cannot have different color for different particles yet.
-        writer = animation.FFMpegWriter(fps=fps, bitrate=fps*100, extra_args=['-vcodec', 'libx264', '-preset', 'ultrafast'])
+        writer = animation.FFMpegWriter(fps=args['fps'], bitrate=args['fps']*100, extra_args=['-vcodec', 'libx264', '-preset', 'ultrafast'])
         tbefore = time.time()
-        plot = ax.plot([], [], [], '.', ms=particlesize, c=color, cmap="jet")[0]
+        plot = ax.plot([], [], [], '.', ms=args['particlesize'], c=color, cmap="jet")[0]
 
-        with writer.saving(fig, f"../videos/{index if index >= 0 else ''}{videoname}.mp4", dpi=dpi):
+        with writer.saving(fig, f"../videos/{index if index >= 0 else ''}{videoname}.mp4", dpi=args['dpi']):
             for frame in data:
                 plot.set_data(frame[:, 0], frame[:, 1])
                 plot.set_3d_properties(frame[:, 2])
@@ -103,23 +112,23 @@ def animate(data, index):
     else:
         video = []
         for frame in data:
-            plot = ax.scatter(frame[:, 0], frame[:, 1], frame[:, 2], s=particlesize, c=np.arange(data.shape[1]), cmap="jet", animated=True)
+            plot = ax.scatter(frame[:, 0], frame[:, 1], frame[:, 2], s=args['particlesize'], c=np.arange(data.shape[1]), cmap="jet", animated=True)
             video.append([plot])
 
-        animation.ArtistAnimation(fig, video, interval=1000/fps, blit=True, repeat_delay=1000)
+        animation.ArtistAnimation(fig, video, interval=1000/args['fps'], blit=True, repeat_delay=1000)
         plt.show()
 
 
 if __name__ == "__main__":
     print("extracting data...")
-    data = data_extract(filename, step)
+    data = data_extract(args['filename'], args['step'])
 
     print("animating...")
-    if multiprocessing and save_video:
-        tf = [int(i/cpus*data.shape[0]) for i in range(cpus+1)]
+    if multiprocessing and args['save_video']:
+        tf = [int(i/args['cpus']*data.shape[0]) for i in range(args['cpus']+1)]
         print(tf)
-        with Pool(cpus) as p:
+        with Pool(args['cpus']) as p:
             p.starmap(animate, [(data[tf[i]:tf[i+1],:,:], i) for i in range(len(tf)-1)])
-        subprocess.call(["./merge_videos.sh", videoname])
+        subprocess.call(["./merge_videos.sh", args['videoname']])
     else:
         animate(data, -1)
