@@ -26,7 +26,6 @@ float r = 0.01;
 int Iterations = 10000;
 bool display_progress = 0;
 double dt = 0.000001;
-double dampening = 0.0;
 
 Vector3d general_force(Vector3d pos1, Vector3d pos2, float n, float k) {
   Vector3d r_vec;
@@ -103,10 +102,6 @@ int main(int argc, char const *argv[]) {
     else if(strcmp(argv[i],"-p") == 0) {
       display_progress = 1;
     }
-    else if(strcmp(argv[i],"-d") == 0) {
-      dampening = atof(argv[i+1]);
-      i += 1;
-    }
   }
 
   std::cout << "#######Input Data#######" << '\n';
@@ -147,8 +142,9 @@ int main(int argc, char const *argv[]) {
       particle_system.calc_kinetic();
       particle_system.calc_potential();
 
-      EK.push_back(particle_system.get_kinetic()/N);
-      EP.push_back(particle_system.get_potential()/N);
+      EK.push_back(particle_system.get_kinetic()/(double) N);
+      EP.push_back(particle_system.get_potential()/(double) N);
+
 
       particle_positions.push_back(particle_system.get_particle_positions());
 
