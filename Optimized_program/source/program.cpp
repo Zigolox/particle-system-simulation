@@ -27,7 +27,7 @@ float r = 0.01;
 int Iterations = 10000;
 bool display_progress = 0;
 double dt = 0.000001;
-string path = "./";
+string dir_path = "./";
 string pos_filename = "position_data.txt";
 string energy_filename = "energy_data.txt";
 string input_filename = "input_data.txt";
@@ -42,8 +42,8 @@ Vector3d general_force(Vector3d pos1, Vector3d pos2, float n, float k) {
   Vector3d F;
 
   r_vec = pos2 - pos1;
-  r = r_vec.norm();
-  F = k*(pow(r,n-1))*r_vec;
+  r = r_vec.dot(r_vec);
+  F = k*(pow(r,(n-1)/2.0))*r_vec;
   return F;
 }
 
@@ -120,7 +120,7 @@ void argparse(int argc, char const **argv) {
       save_freq = atoi(argv[i+1]);
     }
     else if(strcmp(argv[i],"-d") == 0) {
-      path = atoi(argv[i+1]);
+      dir_path = argv[i+1];
     }
   }
 }
@@ -165,6 +165,7 @@ int main(int argc, char const *argv[]) {
   argparse(argc, argv);
 
   write_input();
+  write_input(dir_path + input_filename);
 
   Vector3d box = {L,L,L};
 
@@ -209,8 +210,9 @@ int main(int argc, char const *argv[]) {
     }
 
   }
-  ofstream energy_file (path + energy_filename);
-  ofstream position_file (path + pos_filename);
+  
+  ofstream energy_file (dir_path + energy_filename);
+  ofstream position_file (dir_path + pos_filename);
 
   Energy_distribution_EK = particle_system.get_kinetic_distribution();
   Energy_distribution_EP = particle_system.get_potential_distribution();
