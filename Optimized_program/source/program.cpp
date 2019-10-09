@@ -1,7 +1,8 @@
 #include <iostream>
+#include <string>
 #include <fstream>
 #include <cmath>
-#include <armadillo>
+#include <Eigen/Dense>
 #include <stdlib.h>
 #include <time.h>
 #include "particle.h"
@@ -26,6 +27,14 @@ float r = 0.01;
 int Iterations = 10000;
 bool display_progress = 0;
 double dt = 0.000001;
+string path = "./";
+string pos_filename = "position_data.txt";
+string energy_filename = "energy_data.txt";
+string input_filename = "input_data.txt";
+int save_freq = 10;
+int print_freq = 100;
+
+
 
 Vector3d general_force(Vector3d pos1, Vector3d pos2, float n, float k) {
   Vector3d r_vec;
@@ -62,10 +71,7 @@ double potential(Vector3d pos1, Vector3d pos2) {
   return general_potential(pos1, pos2, exponent, constant);
 }
 
-
-int main(int argc, char const *argv[]) {
-  srand(time(NULL));
-
+void argparse(int argc, char const **argv) {
   for(int i = 1; i < argc; i++) {
     if(strcmp(argv[i],"-N") == 0) {
       N = atoi(argv[i+1]);
@@ -99,11 +105,28 @@ int main(int argc, char const *argv[]) {
       dt = atof(argv[i+1]);
       i += 1;
     }
+    else if(strcmp(argv[i],"-f") == 0) {
+      pos_filename = argv[i+1] + pos_filename;
+      energy_filename = argv[i+1] + energy_filename;
+      input_filename = argv[i+1] + input_filename;
+      i += 1;
+    }
     else if(strcmp(argv[i],"-p") == 0) {
       display_progress = 1;
+      print_freq = atoi(argv[i+1]);
+
+    }
+    else if(strcmp(argv[i],"-s") == 0) {
+      save_freq = atoi(argv[i+1]);
+    }
+    else if(strcmp(argv[i],"-d") == 0) {
+      path = atoi(argv[i+1]);
     }
   }
+}
 
+
+void write_input() {
   std::cout << "#######Input Data#######" << '\n';
   std::cout << "N: " << N << '\n';
   std::cout << "L: " << L << '\n';
@@ -114,6 +137,31 @@ int main(int argc, char const *argv[]) {
   std::cout << "Iterations: " << Iterations << '\n';
   std::cout << "Time step: " << dt << '\n';
   std::cout << "########################" << '\n';
+
+}
+
+void write_input(string filename) {
+  ofstream file(filename);
+  file << "#######Input Data#######" << '\n';
+  file << "N: " << N << '\n';
+  file << "L: " << L << '\n';
+  file << "Exponent: " << exponent << '\n';
+  file << "Constant: " << constant << '\n';
+  file << "Velocity: " << vel << '\n';
+  file << "Radius: " << r << '\n';
+  file << "Iterations: " << Iterations << '\n';
+  file << "Time step: " << dt << '\n';
+  file << "########################" << '\n';
+  file.close()
+}
+
+
+int main(int argc, char const *argv[]) {
+  srand(time(NULL));
+
+  argparse(argc, argv);
+
+  write_input();
 
   Vector3d box = {L,L,L};
 
@@ -135,10 +183,11 @@ int main(int argc, char const *argv[]) {
   for(int i = 0; i < Iterations; i++) {
     particle_system.update_system();
 
-    if(i%10 == 0) {
-      if(display_progress) {
-        std::cout << "Progress: " << (float) i/(float)Iterations  << '\n';
-      }
+    if(display_progress  i%print_freq == 0) {
+      std::cout << "Progress: " << (float) i/(float)Iterations  << '\n';
+    }
+
+    if(i%save_freq == 0) {
       particle_system.calc_kinetic();
       particle_system.calc_potential();
 
@@ -152,8 +201,8 @@ int main(int argc, char const *argv[]) {
     }
 
   }
-  ofstream energy_file ("../e3example2/energy_data.txt");
-  ofstream position_file ("../e3example2/position_data.txt");
+  ofstream energy_file (path + energy_filename);
+  ofstream position_file (path + pos_filename);
 
   Energy_distribution_EK = particle_system.get_kinetic_distribution();
   Energy_distribution_EP = particle_system.get_potential_distribution();
@@ -195,8 +244,8 @@ int main(int argc, char const *argv[]) {
   }
   energy_file << '\n';
 
-energy_file.close();
-position_file.close();
+  energy_file.close();
+  position_file.close();
 
 
 
