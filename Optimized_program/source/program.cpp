@@ -157,6 +157,9 @@ void write_input(string filename) {
 
 
 int main(int argc, char const *argv[]) {
+  long int start_time = time(NULL);
+  long int current_time, total_time;
+  double progress;
   srand(time(NULL));
 
   argparse(argc, argv);
@@ -184,7 +187,12 @@ int main(int argc, char const *argv[]) {
     particle_system.update_system();
 
     if(display_progress and i%print_freq == 0) {
-      std::cout << "Progress: " << (float) i/(float)Iterations  << '\n';
+      progress = (float) i/(float)Iterations;
+      std::cout << "Progress: " << progress*100 << '%' << '\n';
+      current_time = time(NULL) - start_time;
+      total_time = current_time * ((long int) 1/progress);
+      cout << "Time: " << current_time << "s / " << total_time << "s\n";
+
     }
 
     if(i%save_freq == 0) {
