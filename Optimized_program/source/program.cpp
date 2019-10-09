@@ -152,7 +152,7 @@ void write_input(string filename) {
   file << "Iterations: " << Iterations << '\n';
   file << "Time step: " << dt << '\n';
   file << "########################" << '\n';
-  file.close()
+  file.close();
 }
 
 
@@ -183,7 +183,7 @@ int main(int argc, char const *argv[]) {
   for(int i = 0; i < Iterations; i++) {
     particle_system.update_system();
 
-    if(display_progress  i%print_freq == 0) {
+    if(display_progress and i%print_freq == 0) {
       std::cout << "Progress: " << (float) i/(float)Iterations  << '\n';
     }
 
