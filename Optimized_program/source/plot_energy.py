@@ -37,7 +37,7 @@ def read_data_EK(file):
             print("Error:", EK, t)
     return t_list, EK_list
 
-mat = read_data("energy_data_electric_new.txt")
+mat = read_data(input("Input file:"))
 
 print("Kinetic:")
 for i in range(100,len(mat[1])-10,500):

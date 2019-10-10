@@ -4,7 +4,7 @@ BIN= ../bin/
 LIBS=-I/usr/local/include/eigen3/
 
 CC=g++
-CFLAGS=-I$(IDIR) $(LIBS) -std=c++11 -O3 
+CFLAGS=-I$(IDIR) $(LIBS) -std=c++14 -pipe -Ofast -Wall -march=native 
 
 _DEPS = particle.h particle_system.h
 DEPS = $(patsubst %,$(IDIR)%,$(_DEPS))

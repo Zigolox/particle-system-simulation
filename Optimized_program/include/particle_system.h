@@ -1,12 +1,15 @@
 #ifndef PARTICLESYSTEM
 #define PARTICLESYSTEM
 #include <stdlib.h>
+#include <algorithm>
+#include <iterator>
 #include <vector>
 #include <string>
 #include <iostream>
 #include <cmath>
 #include <Eigen/Dense>
 #include "particle.h"
+
 
 using namespace std;
 using namespace Eigen;
@@ -101,7 +104,10 @@ public:
   vector<double> get_kinetic_distribution();
   vector<double> get_potential_distribution();
 
+  vector<double> get_radius_distribution();
+
   vector<Vector3d> get_particle_positions();
+
 
 
 };

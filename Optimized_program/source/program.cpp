@@ -155,11 +155,66 @@ void write_input(string filename) {
   file.close();
 }
 
+void show_progress(long int start_time, double progress) {
+
+  long int current_time, total_time;
+
+  int current_time_min;
+  int current_time_sec;
+  int current_time_h;
+
+  int total_time_min;
+  int total_time_sec;
+  int total_time_h;
+
+  std::cout << "\033[2A";
+  std::cout << "Progress: " << progress*100 << '%' << "             \n";
+
+  current_time = time(NULL) - start_time;
+  total_time = current_time * ((long int) 1/progress);
+  if (total_time < 60) {
+    cout << "Time: " << current_time << "s/" << total_time << "s";
+  }
+  else if (total_time < 3600) {
+    total_time_sec = total_time % 60;
+    total_time_min = total_time / 60;
+
+    current_time_sec = current_time % 60;
+    current_time_min = current_time / 60;
+
+    cout << "Time: ";
+    cout << current_time_min << "min " ;
+    cout << current_time_sec << "s / ";
+    cout << total_time_min << "min " ;
+    cout << total_time_sec << "s";
+  }
+  else {
+    total_time_sec = total_time % 60;
+    total_time_min = (total_time % 3600) / 60;
+    total_time_h = total_time / 3600;
+
+    current_time_sec = current_time % 60;
+    current_time_min = (current_time % 3600) / 60;
+    current_time_h = current_time / 3600;
+
+    cout << "Time: ";
+    cout << current_time_h << "h ";
+    cout << current_time_min << "min " ;
+    cout << current_time_sec << "s / ";
+    cout << total_time_h << "h ";
+    cout << total_time_min << "min " ;
+    cout << total_time_sec << "s";
+  }
+  cout << "                          \n";
+
+}
+
 
 int main(int argc, char const *argv[]) {
   long int start_time = time(NULL);
-  long int current_time, total_time;
+
   double progress;
+
   srand(time(NULL));
 
   argparse(argc, argv);
@@ -187,13 +242,9 @@ int main(int argc, char const *argv[]) {
   for(int i = 0; i < Iterations; i++) {
     particle_system.update_system();
 
-    if(display_progress and i%print_freq == 0) {
+    if(display_progress and i%print_freq == 0 and i > 0) {
       progress = (float) i/(float)Iterations;
-      std::cout << "Progress: " << progress*100 << '%' << '\n';
-      current_time = time(NULL) - start_time;
-      total_time = current_time * ((long int) 1/progress);
-      cout << "Time: " << current_time << "s / " << total_time << "s\n";
-
+      show_progress(start_time, progress);
     }
 
     if(i%save_freq == 0) {
@@ -210,7 +261,7 @@ int main(int argc, char const *argv[]) {
     }
 
   }
-  
+
   ofstream energy_file (dir_path + energy_filename);
   ofstream position_file (dir_path + pos_filename);
 
