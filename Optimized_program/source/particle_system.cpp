@@ -307,3 +307,24 @@ vector<Vector3d> System::get_particle_positions() {
 
   return positions;
 }
+
+vector<double> System::get_radius_distribution() {
+  vector<double> distribution;
+  Vector3d rad;
+  double r;
+  __wrap_iter<const double *> it;
+  for(int i = 0; i < N - 1; i++) {
+    for(int j = i + 1; j < N; j++) {
+      rad = (particles[i] -> get_position() - particles[j] -> get_position());
+      r = rad.norm();
+
+      distribution.push_back(r);
+    }
+  }
+
+  sort(distribution.begin(), distribution.end());
+
+  return distribution;
+
+  return distribution;
+}
