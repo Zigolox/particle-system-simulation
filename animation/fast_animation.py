@@ -10,11 +10,11 @@ import sys
 flags = {'-v':'save_video', '-s': 'step', '-f': 'fps', '-q': 'dpi', '-r':'particlesize', '-d': 'filename', '-o': 'videoname', '-c': 'cpus'}
 
 args = dict(save_video = False,
-            step = 1000,
+            step = 1,
             fps = 60,                    # Frames per second
             dpi = 300,                   # Dots per inch (i.e. resolution)
             particlesize = 40,            # Size of particles (not the same coordinates as the box)
-            filename = "../text_data_files/position_data2.5.txt",
+            filename = "../Data/force2/position_data.txt",
             videoname = 'test_animation',
             cpus=4)
 
@@ -27,10 +27,13 @@ for i, flag in enumerate(sys.argv[1:]):
             args[flags[flag]] = sys.argv[i+2]
 
 if args['save_video']:
-    multiprocessing = True  # TODO: This code is bad.
+    if isinstance(args['cpus'], int) and args['cpus'] > 1:
+        multiprocessing = True
+    else:
+        multiprocessing = False
 else:
     multiprocessing = False
-
+# End of bad code
 
 def test_datagen(nparticles, nframes, filename):
     """Function that generates random data and saves in a file. Used for testing the program."""
@@ -80,15 +83,6 @@ def animate(data, index):
     ax.set_ylim(0, boxsize)
     ax.set_zlim(0, boxsize)
 
-    # if isinstance(boxsize, list) or isinstance(boxsize, tuple):
-    #     ax.set_xlim(0, boxsize[0])
-    #     ax.set_ylim(0, boxsize[1])
-    #     ax.set_zlim(0, boxsize[2])
-    # else:
-    #     ax.set_xlim(0, boxsize)
-    #     ax.set_ylim(0, boxsize)
-    #     ax.set_zlim(0, boxsize)
-
     ax.set_axis_off()
     fig.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=None, hspace=None)
     fig.set_size_inches((5, 5), forward=True)
@@ -99,12 +93,12 @@ def animate(data, index):
         # TOOO: This cannot have different color for different particles yet.
         writer = animation.FFMpegWriter(fps=args['fps'], bitrate=args['fps']*100, extra_args=['-vcodec', 'libx264', '-preset', 'ultrafast'])
         tbefore = time.time()
-        plot = ax.plot([], [], [], '.', ms=args['particlesize'], c=color, cmap="jet")[0]
+        bcoord = np.zeros(data.shape[1])
+        plot = ax.scatter(bcoord, bcoord, bcoord, s=args['particlesize'], c=np.arange(data.shape[1]), cmap="jet")
 
-        with writer.saving(fig, f"../videos/{index if index >= 0 else ''}{videoname}.mp4", dpi=args['dpi']):
+        with writer.saving(fig, f"../videos/{index if index >= 0 else ''}{args['videoname']}.mp4", dpi=args['dpi']):
             for frame in data:
-                plot.set_data(frame[:, 0], frame[:, 1])
-                plot.set_3d_properties(frame[:, 2])
+                plot._offsets3d = (frame[:, 0], frame[:, 1], frame[:, 2])
                 # grab_frame takes time
                 writer.grab_frame()
         tafter = time.time()
