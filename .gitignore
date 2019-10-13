@@ -102,3 +102,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Compiled files of the C++ program, as these are not compatible for different operating systems.
+simulation_c++/bin/*
+simulation_c++/obj/*
+Optimized_program/bin/*
+Optimized_program/obj/*
