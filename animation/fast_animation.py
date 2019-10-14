@@ -13,8 +13,8 @@ args = dict(save_video = False,
             step = 1,
             fps = 60,                    # Frames per second
             dpi = 300,                   # Dots per inch (i.e. resolution)
-            particlesize = 40,            # Size of particles (not the same coordinates as the box)
-            filename = "../Data/force2/position_data.txt",
+            particlesize = 20,            # Size of particles (not the same coordinates as the box)
+            filename = "../text_data_files/position_data2.5.txt",
             videoname = 'test_animation',
             cpus=4)
 
