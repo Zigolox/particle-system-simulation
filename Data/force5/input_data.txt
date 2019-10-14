@@ -1,10 +1,10 @@
 #######Input Data#######
 N: 200
 L: 10
-Exponent: -2
+Exponent: -5
 Constant: 1
 Velocity: 2
 Radius: 0.1
-Iterations: 10000000
-Time step: 1e-05
+Iterations: 15000000
+Time step: 3e-06
 ########################

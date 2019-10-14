@@ -32,7 +32,7 @@ def get_distances(positions):
 def main():
     all_data = read_data(INPUT_FILE)
     with open(OUTPUT_FILE,'w') as f:
-        for row in all_data[-10:]:
+        for row in all_data[-80::1]:
 
             f.write(str(get_distances(row)) + "\n")
 
