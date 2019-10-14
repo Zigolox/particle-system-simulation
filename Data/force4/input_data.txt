@@ -5,6 +5,11 @@ Exponent: -4
 Constant: 1
 Velocity: 2
 Radius: 0.1
+<<<<<<< Updated upstream
 Iterations: 10000000
 Time step: 1e-05
+=======
+Iterations: 20000000
+Time step: 3e-06
+>>>>>>> Stashed changes
 ########################
