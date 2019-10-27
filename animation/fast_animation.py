@@ -7,33 +7,34 @@ from multiprocessing import Pool
 import subprocess
 import sys
 
-flags = {'-v':'save_video', '-s': 'step', '-f': 'fps', '-q': 'dpi', '-r':'particlesize', '-d': 'filename', '-o': 'videoname', '-c': 'cpus'}
 
-args = dict(save_video = False,
-            step = 1,
-            fps = 60,                    # Frames per second
-            dpi = 300,                   # Dots per inch (i.e. resolution)
-            particlesize = 20,            # Size of particles (not the same coordinates as the box)
-            filename = "./Data/force3/position_data.txt",
-            videoname = 'test_animation',
-            cpus=4)
+def get_userargs():
+    flags = {'-v':'save_video', '-s': 'step', '-f': 'fps', '-q': 'dpi', '-r':'particlesize', '-d': 'filename', '-o': 'videoname', '-c': 'cpus'}
 
-# TODO: bad code
-for i, flag in enumerate(sys.argv[1:]):
-    if flag[0] == '-':
-        try:
-            args[flags[flag]] = int(sys.argv[i+2])
-        except ValueError:
-            args[flags[flag]] = sys.argv[i+2]
+    args = dict(save_video = False,
+                step = 1,
+                fps = 60,                    # Frames per second
+                dpi = 300,                   # Dots per inch (i.e. resolution)
+                particlesize = 20,            # Size of particles (not the same coordinates as the box)
+                filename = "./Data/force3/position_data.txt",
+                videoname = 'test_animation',
+                cpus=4,
+                multiprocessing=False)
 
-if args['save_video']:
-    if isinstance(args['cpus'], int) and args['cpus'] > 1:
-        multiprocessing = True
-    else:
-        multiprocessing = False
-else:
-    multiprocessing = False
-# End of bad code
+    # TODO: bad code
+    for i, flag in enumerate(sys.argv[1:]):
+        if flag[0] == '-':
+            try:
+                args[flags[flag]] = int(sys.argv[i+2])
+            except ValueError:
+                args[flags[flag]] = sys.argv[i+2]
+
+    if args['save_video']:
+        if isinstance(args['cpus'], int) and args['cpus'] > 1:
+            args['multiprocessing'] = True
+        # End of bad code
+    return args
+
 
 def test_datagen(nparticles, nframes, filename):
     """Function that generates random data and saves in a file. Used for testing the program."""
@@ -94,9 +95,9 @@ def animate(data, index):
         writer = animation.FFMpegWriter(fps=args['fps'], bitrate=args['fps']*100, extra_args=['-vcodec', 'libx264', '-preset', 'ultrafast'])
         tbefore = time.time()
         bcoord = np.zeros(data.shape[1])
-        plot = ax.scatter(bcoord, bcoord, bcoord, s=args['particlesize'], c=np.arange(data.shape[1]), cmap="jet")
+        plot = ax.scatter(bcoord, bcoord, bcoord, s=args['particlesize'], c=color, cmap="jet")
 
-        with writer.saving(fig, f"../videos/{index if index >= 0 else ''}{args['videoname']}.mp4", dpi=args['dpi']):
+        with writer.saving(fig, f"./videos/{index if index >= 0 else ''}{args['videoname']}.mp4", dpi=args['dpi']):
             for frame in data:
                 plot._offsets3d = (frame[:, 0], frame[:, 1], frame[:, 2])
                 # grab_frame takes time
@@ -114,11 +115,13 @@ def animate(data, index):
 
 
 if __name__ == "__main__":
+    args = get_userargs()
+
     print("extracting data...")
     data = data_extract(args['filename'], args['step'])
 
     print("animating...")
-    if multiprocessing and args['save_video']:
+    if args['multiprocessing'] and args['save_video']:
         tf = [int(i/args['cpus']*data.shape[0]) for i in range(args['cpus']+1)]
         print(tf)
         with Pool(args['cpus']) as p:
