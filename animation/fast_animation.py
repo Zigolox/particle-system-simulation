@@ -9,7 +9,8 @@ import sys
 
 
 def get_userargs():
-    flags = {'-v':'save_video', '-s': 'step', '-f': 'fps', '-q': 'dpi', '-r':'particlesize', '-d': 'filename', '-o': 'videoname', '-c': 'cpus'}
+    """Function that gets all input parameters (flags) from the user and returns all flags"""
+    flags = {'-v':'save_video', '-s': 'step', '-f': 'fps', '-q': 'dpi', '-r':'particlesize', '-d': 'filename', '-o': 'videoname', '-c': 'cpus', '-p': 'preset'}
 
     args = dict(save_video = False,
                 step = 1,
@@ -18,21 +19,23 @@ def get_userargs():
                 particlesize = 20,            # Size of particles (not the same coordinates as the box)
                 filename = "./Data/force3/position_data.txt",
                 videoname = 'test_animation',
-                cpus=4,
-                multiprocessing=False)
+                cpus=None,
+                multiprocessing=False,
+                preset='ultrafast')
 
-    # TODO: bad code
     for i, flag in enumerate(sys.argv[1:]):
         if flag[0] == '-':
             try:
                 args[flags[flag]] = int(sys.argv[i+2])
             except ValueError:
                 args[flags[flag]] = sys.argv[i+2]
+            except KeyError:
+                print("Warning: invalid flag name '{}', ignoring flag".format(flag))
 
     if args['save_video']:
         if isinstance(args['cpus'], int) and args['cpus'] > 1:
             args['multiprocessing'] = True
-        # End of bad code
+
     return args
 
 
@@ -69,6 +72,14 @@ def data_extract(filename, step=0):
     return simulation
 
 
+def print_progress(totaln):
+    """Unused function"""
+    for i in range(1, totaln+1):
+        sys.stdout.write("\r{}% done".format(i/totaln*100))
+        sys.stdout.flush()
+        yield
+
+
 def animate(data, index):
     """Function that animates all particles in 3D.
     NOTE: This function is rather slow. Improvements might be possible.
@@ -92,16 +103,18 @@ def animate(data, index):
 
     if args['save_video']:
         # TOOO: This cannot have different color for different particles yet.
-        writer = animation.FFMpegWriter(fps=args['fps'], bitrate=args['fps']*100, extra_args=['-vcodec', 'libx264', '-preset', 'ultrafast'])
+        writer = animation.FFMpegWriter(fps=args['fps'], bitrate=args['fps']*100, extra_args=['-vcodec', 'libx264', '-preset', args['preset']])
         tbefore = time.time()
         bcoord = np.zeros(data.shape[1])
         plot = ax.scatter(bcoord, bcoord, bcoord, s=args['particlesize'], c=color, cmap="jet")
+        nframes = data.shape[0]
 
         with writer.saving(fig, f"./videos/{index if index >= 0 else ''}{args['videoname']}.mp4", dpi=args['dpi']):
-            for frame in data:
+            for i, frame in enumerate(data):
                 plot._offsets3d = (frame[:, 0], frame[:, 1], frame[:, 2])
                 # grab_frame takes time
                 writer.grab_frame()
+
         tafter = time.time()
         print("time taken to save video:", tafter - tbefore, "s")
     else:
@@ -123,7 +136,6 @@ if __name__ == "__main__":
     print("animating...")
     if args['multiprocessing'] and args['save_video']:
         tf = [int(i/args['cpus']*data.shape[0]) for i in range(args['cpus']+1)]
-        print(tf)
         with Pool(args['cpus']) as p:
             p.starmap(animate, [(data[tf[i]:tf[i+1],:,:], i) for i in range(len(tf)-1)])
         subprocess.call(["./merge_videos.sh", args['videoname']])
