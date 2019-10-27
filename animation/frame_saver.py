@@ -19,9 +19,10 @@ def save_frame(data, frame_index=-1):
     frame = data[frame_index]
 
     ax.scatter(frame[:, 0], frame[:, 1], frame[:, 2], s=args['particlesize'], c=color, cmap="jet")
-
-    plt.savefig(f"./videos/{args['videoname']}.pdf")
-
+    if args['videoname'][-3:] != 'pdf':
+        plt.savefig(f"./videos/{args['videoname']}", dpi=args['dpi'])
+    else:
+        plt.savefig(f"./videos/{args['videoname']}", dpi=args['dpi'])
 
 if __name__ == "__main__":
     args = get_userargs()
